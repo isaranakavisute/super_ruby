@@ -11,6 +11,9 @@ gem "pg"
 # json 3.0 no longer accepts a positional options hash in JSON.parse, which ActiveSupport::JSON.decode
 # (Rails 8.1.3.1) still passes, so every JSON request body fails to parse. Remove once Rails supports json 3.
 gem "json", "< 3"
+# Load connection settings from .env.<environment> files (see .env.example). Values already set
+# in the real environment (e.g. docker run --env-file) take precedence over the files.
+gem "dotenv"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]

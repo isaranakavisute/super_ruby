@@ -9,16 +9,18 @@ default: &default
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
-# External PostgreSQL database (local Supabase in Docker by default), used
-# read-only by PostgresRecord. database_tasks: false keeps Rails migrations,
-# db:prepare, db:drop etc. from ever touching it.
+# External PostgreSQL database used by PostgresRecord models such as Staff.
+# Connection settings come from .env.<environment> (e.g. .env.development, .env.production;
+# see .env.example) or from real environment variables, which take precedence.
+# database_tasks: false keeps Rails migrations, db:prepare, db:drop etc. from ever touching it.
 postgres: &postgres
   adapter: postgresql
-  host: <%= ENV.fetch("POSTGRES_HOST") { "127.0.0.1" } %>
-  port: <%= ENV.fetch("POSTGRES_PORT") { 54322 } %>
-  database: <%= ENV.fetch("POSTGRES_DB") { "postgres" } %>
-  username: <%= ENV.fetch("POSTGRES_USER") { "postgres" } %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD") { "postgres" } %>
+  host: <%= ENV["POSTGRES_HOST"] %>
+  port: <%= ENV["POSTGRES_PORT"] %>
+  database: <%= ENV["POSTGRES_DB"] %>
+  username: <%= ENV["POSTGRES_USER"] %>
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  sslmode: <%= ENV.fetch("POSTGRES_SSLMODE", "prefer") %>
   max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   database_tasks: false
 
