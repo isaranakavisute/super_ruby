@@ -1,0 +1,17 @@
+# Keep secrets, git history and local artifacts out of the image
+/.git/
+/.gitignore
+/.env*
+/config/master.key
+/config/credentials/*.key
+/log/*
+/tmp/*
+/storage/*
+# ...but keep the empty directories, which the Dockerfile chowns and Rails writes to
+!/log/.keep
+!/tmp/.keep
+!/storage/.keep
+/node_modules/
+/public/assets
+/Dockerfile*
+/.dockerignore
