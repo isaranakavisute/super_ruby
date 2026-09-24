@@ -1,4 +1,7 @@
 class CurrentTimeController < ApplicationController
+  # Public JSON API used by Postman and other non-browser clients, so no login is required
+  allow_unauthenticated_access
+
   def show
     now = Time.current
 

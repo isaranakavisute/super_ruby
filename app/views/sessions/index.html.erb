@@ -1,0 +1,25 @@
+<% content_for :title, "Sign in" %>
+
+<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
+  <h1 class="mb-5 text-2xl font-bold">Sign in</h1>
+
+  <%= render "shared/flash" %>
+
+  <%= form_with url: login_path, class: "grid gap-4" do |form| %>
+    <div class="grid gap-1.5">
+      <%= form.label :username, class: "text-sm font-semibold" %>
+      <%= form.text_field :username, required: true, autofocus: true, autocomplete: "username", autocapitalize: "none", placeholder: "Enter your username", value: params[:username],
+            class: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-2 focus:outline-blue-600" %>
+    </div>
+
+    <div class="grid gap-1.5">
+      <%= form.label :password, class: "text-sm font-semibold" %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72,
+            class: ["w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-2",
+                    @error ? "border-red-500 focus:outline-red-600" : "border-gray-300 focus:outline-blue-600"] %>
+      <%= tag.p(@error, class: "text-sm text-red-600", id: "login-error") if @error %>
+    </div>
+
+    <%= form.submit "Sign in", class: "w-full cursor-pointer rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700" %>
+  <% end %>
+</div>

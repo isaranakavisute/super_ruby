@@ -1,4 +1,7 @@
 class StaffController < ApplicationController
+  # Public JSON API used by Postman and other non-browser clients, so no login is required
+  allow_unauthenticated_access
+
   # JSON API endpoint called by non-browser clients, so there is no CSRF token to check
   skip_forgery_protection only: :create
 

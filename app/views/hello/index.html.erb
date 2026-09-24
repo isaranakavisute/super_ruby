@@ -1,0 +1,11 @@
+<% content_for :title, "Home" %>
+
+<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
+  <%= render "shared/flash" %>
+
+  <h1 class="mb-5 text-2xl font-bold">Hello, world!</h1>
+  <p class="mb-5">You are signed in as <strong><%= Current.user.email_address %></strong>.</p>
+
+  <%= button_to "Sign out", login_path, method: :delete,
+        class: "w-full cursor-pointer rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700" %>
+</div>

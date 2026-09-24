@@ -1,0 +1,21 @@
+<% content_for :title, "Forgot your password?" %>
+
+<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
+  <h1 class="mb-5 text-2xl font-bold">Forgot your password?</h1>
+
+  <%= render "shared/flash" %>
+
+  <%= form_with url: passwords_path, class: "grid gap-4" do |form| %>
+    <div class="grid gap-1.5">
+      <%= form.label :email_address, "Email address", class: "text-sm font-semibold" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "you@example.com", value: params[:email_address],
+            class: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-2 focus:outline-blue-600" %>
+    </div>
+
+    <%= form.submit "Email reset instructions", class: "w-full cursor-pointer rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700" %>
+  <% end %>
+
+  <p class="mt-4 text-center text-sm">
+    <%= link_to "Back to sign in", login_path, class: "text-blue-600 underline hover:text-blue-700" %>
+  </p>
+</div>

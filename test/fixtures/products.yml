@@ -1,0 +1,27 @@
+earbuds:
+  name: Wireless Bluetooth Earbuds
+  category: Electronics
+  emoji: 🎧
+  price: 599
+  original_price: 1290
+  rating: 4.8
+  sold_count: 12500
+  location: Bangkok
+
+t_shirt:
+  name: Oversized Cotton T-Shirt
+  category: Fashion
+  emoji: 👕
+  price: 159
+  rating: 4.8
+  sold_count: 31000
+  location: Bangkok
+
+rice:
+  name: Thai Jasmine Rice 5kg
+  category: Groceries
+  emoji: 🍚
+  price: 189
+  rating: 4.9
+  sold_count: 42100
+  location: Suphan Buri

@@ -1,0 +1,25 @@
+<article class="group flex flex-col overflow-hidden rounded-sm bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:outline hover:outline-[#ee4d2d]">
+  <div class="relative flex aspect-square items-center justify-center bg-gradient-to-br from-orange-50 to-amber-100 text-6xl">
+    <%= product.emoji %>
+    <% if product.discount_percent %>
+      <span class="absolute right-0 top-0 bg-yellow-300 px-1.5 py-0.5 text-xs font-bold text-[#ee4d2d]">-<%= product.discount_percent %>%</span>
+    <% end %>
+  </div>
+
+  <div class="flex flex-1 flex-col gap-1.5 p-2">
+    <h3 class="line-clamp-2 min-h-10 text-sm leading-5"><%= product.name %></h3>
+
+    <div class="flex items-baseline gap-1.5">
+      <span class="font-semibold text-[#ee4d2d]"><%= baht(product.price) %></span>
+      <% if product.original_price %>
+        <span class="text-xs text-gray-400 line-through"><%= baht(product.original_price) %></span>
+      <% end %>
+    </div>
+
+    <div class="mt-auto flex items-center justify-between text-xs text-gray-500">
+      <span><span class="text-yellow-400">★</span> <%= product.rating %></span>
+      <span><%= sold_count(product.sold_count) %> sold</span>
+    </div>
+    <div class="text-xs text-gray-400">📍 <%= product.location %></div>
+  </div>
+</article>

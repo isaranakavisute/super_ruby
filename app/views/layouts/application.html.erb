@@ -23,7 +23,14 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="bg-gray-100 font-sans text-gray-900">
+    <% if content_for?(:full_width) %>
+      <%= yield %>
+    <% else %>
+      <%# Centred card layout used by the login and password pages %>
+      <main class="flex min-h-screen items-center justify-center px-4">
+        <%= yield %>
+      </main>
+    <% end %>
   </body>
 </html>

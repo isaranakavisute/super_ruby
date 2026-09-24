@@ -1,4 +1,7 @@
 class TablesController < ApplicationController
+  # Public JSON API used by Postman and other non-browser clients, so no login is required
+  allow_unauthenticated_access
+
   def index
     connection = PostgresRecord.connection
     rows = connection.select_rows(<<~SQL)
