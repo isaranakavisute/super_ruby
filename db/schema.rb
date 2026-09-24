@@ -10,22 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_24_130646) do
-  create_table "products", force: :cascade do |t|
-    t.string "category", null: false
-    t.datetime "created_at", null: false
-    t.string "emoji", null: false
-    t.string "location", null: false
-    t.string "name", null: false
-    t.integer "original_price"
-    t.integer "price", null: false
-    t.decimal "rating", precision: 2, scale: 1, default: "0.0", null: false
-    t.integer "sold_count", default: 0, null: false
-    t.datetime "updated_at", null: false
-    t.index ["category"], name: "index_products_on_category"
-    t.index ["name"], name: "index_products_on_name", unique: true
-  end
-
+ActiveRecord::Schema[8.1].define(version: 2026_09_24_214028) do
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"

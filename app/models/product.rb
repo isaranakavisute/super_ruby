@@ -1,4 +1,5 @@
-class Product < ApplicationRecord
+# Stored in the PostgreSQL database (table created by db/postgres/products.sql)
+class Product < PostgresRecord
   CATEGORIES = [ "Electronics", "Fashion", "Home & Living", "Beauty", "Sports", "Groceries" ].freeze
 
   validates :name, presence: true, uniqueness: true
@@ -10,7 +11,7 @@ class Product < ApplicationRecord
   scope :on_sale, -> { where.not(original_price: nil) }
 
   def self.search(query)
-    query.present? ? where("name LIKE ?", "%#{sanitize_sql_like(query)}%") : all
+    query.present? ? where("name ILIKE ?", "%#{sanitize_sql_like(query)}%") : all
   end
 
   # Percentage off the original price, e.g. 25 for "-25%"

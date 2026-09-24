@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ProductsControllerTest < ActionDispatch::IntegrationTest
+  setup { create_products_table }
+
   test "shop requires login" do
     get root_path
 

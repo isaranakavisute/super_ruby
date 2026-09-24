@@ -14,9 +14,29 @@
 
     <div class="grid gap-1.5">
       <%= form.label :password, class: "text-sm font-semibold" %>
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72,
-            class: ["w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-2",
-                    @error ? "border-red-500 focus:outline-red-600" : "border-gray-300 focus:outline-blue-600"] %>
+      <div class="relative" data-controller="password-visibility">
+        <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72,
+              data: { password_visibility_target: "input" },
+              class: ["w-full rounded-lg border py-2 pl-3 pr-10 focus:border-transparent focus:outline-2",
+                      @error ? "border-red-500 focus:outline-red-600" : "border-gray-300 focus:outline-blue-600"] %>
+
+        <button type="button" aria-label="Show password" aria-pressed="false" title="Show / hide password"
+                data-action="password-visibility#toggle" data-password-visibility-target="button"
+                class="absolute inset-y-0 right-0 flex cursor-pointer items-center px-3 text-gray-500 hover:text-gray-800">
+          <%# Eye: password is hidden, click to show %>
+          <svg data-password-visibility-target="showIcon" class="size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <%# Crossed-out eye: password is visible, click to hide %>
+          <svg data-password-visibility-target="hideIcon" class="hidden size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-2.2 3.2" />
+            <path d="M6.6 6.6A17.4 17.4 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" />
+            <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+            <path d="m2 2 20 20" />
+          </svg>
+        </button>
+      </div>
       <%= tag.p(@error, class: "text-sm text-red-600", id: "login-error") if @error %>
     </div>
 

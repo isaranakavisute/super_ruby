@@ -2,7 +2,10 @@ require "test_helper"
 
 # Logins are checked against myuser / mypassword in the PostgreSQL user_password table.
 class SessionsControllerTest < ActionDispatch::IntegrationTest
-  setup { create_user_password_table }
+  setup do
+    create_user_password_table
+    create_products_table
+  end
 
   test "index" do
     get login_path
@@ -36,7 +39,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
     assert_nil cookies[:session_id]
-    assert_select "input[name=password] + p#login-error.text-red-600", "Password is incorrect"
+    assert_select "[data-controller=password-visibility] + p#login-error.text-red-600", "Password is incorrect"
     assert_select "input[name=username][value=alice]"
   end
 
