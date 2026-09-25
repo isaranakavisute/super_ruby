@@ -3,6 +3,13 @@ Rails.application.routes.draw do
   get    "login" => "sessions#index", as: :login
   post   "login" => "sessions#create"
   delete "login" => "sessions#destroy"
+
+  # Registration page (new) and create the account (create), both at /register
+  get    "register" => "registrations#new", as: :register
+  post   "register" => "registrations#create"
+
+  # Admin Panel: list of all user_password accounts, shown to the "admin" user after login
+  get "admin" => "admin#index", as: :admin_panel
   resources :passwords, param: :token
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

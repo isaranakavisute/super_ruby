@@ -27,6 +27,8 @@
 </header>
 
 <main class="mx-auto max-w-6xl space-y-4 px-4 py-5">
+  <%= render "shared/flash" %>
+
   <%# Categories %>
   <nav class="grid grid-cols-4 gap-2 rounded-sm bg-white p-3 text-center text-xs shadow-sm sm:grid-cols-7">
     <% ([ nil ] + Product::CATEGORIES).each do |category| %>

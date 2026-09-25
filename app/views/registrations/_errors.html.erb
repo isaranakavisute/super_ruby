@@ -1,0 +1,8 @@
+<%# Red error lines under a registration field. Locals: messages (array of strings), id %>
+<% if messages.any? %>
+  <div id="<%= id %>" class="grid gap-0.5 text-sm text-red-600">
+    <% messages.each do |message| %>
+      <p><%= message %></p>
+    <% end %>
+  </div>
+<% end %>

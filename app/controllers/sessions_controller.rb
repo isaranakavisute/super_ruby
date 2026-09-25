@@ -9,8 +9,16 @@ class SessionsController < ApplicationController
   # of the PostgreSQL database (see .env.<environment>).
   def create
     if account = UserPassword.authenticate(params[:username], params[:password])
-      start_new_session_for User.for_user_password(account)
-      redirect_to after_authentication_url
+      user = User.for_user_password(account)
+      start_new_session_for user
+
+      # The admin always goes to the Admin Panel; everyone else to the page they asked for (or the shop)
+      if user.admin?
+        session.delete(:return_to_after_authenticating)
+        redirect_to admin_panel_path
+      else
+        redirect_to after_authentication_url
+      end
     else
       # Re-show the form (keeping the username) with the error under the password field.
       # 422 status is required for Turbo to display a re-rendered form.

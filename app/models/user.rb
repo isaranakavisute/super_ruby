@@ -7,6 +7,12 @@ class User < ApplicationRecord
 
   validates :username, uniqueness: true, allow_nil: true
 
+  ADMIN_USERNAME = "admin"
+
+  def admin?
+    username == ADMIN_USERNAME
+  end
+
   # Local record that login sessions belong to, for a user who signed in with their
   # user_password (PostgreSQL) account. Passwords are checked against user_password, not here,
   # so the local password is random and never used.

@@ -9,6 +9,4 @@ module UserPasswordTestHelper
   end
 end
 
-ActiveSupport.on_load(:action_dispatch_integration_test) do
-  include UserPasswordTestHelper
-end
+ActiveSupport.on_load(:active_support_test_case) { include UserPasswordTestHelper }

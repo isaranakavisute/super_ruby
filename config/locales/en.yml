@@ -21,11 +21,21 @@
 #
 # Be aware that YAML interprets the following case-insensitive strings as
 # booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
+# will be read as strings rather than booleans and must be quoted.
 
 en:
   hello: "Hello world"
+
+  # Field names used in error messages, e.g. "Username is already taken"
+  activerecord:
+    attributes:
+      user_password:
+        myuser: "Username"
+        mypassword: "Password"
+        mypassword_confirmation: "Confirm password"
+    errors:
+      models:
+        user_password:
+          attributes:
+            mypassword_confirmation:
+              confirmation: "doesn't match the password"

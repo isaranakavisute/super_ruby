@@ -7,8 +7,10 @@ require_relative "test_helpers/product_test_helper"
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    # Run in a single process. Parallel workers would each need their own copy of every database
+    # (e.g. "postgres_5"), but the PostgreSQL database is external and not managed by Rails.
+    # Forked workers using the pg gem can also hang on macOS.
+    parallelize(workers: 1)
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all

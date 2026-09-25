@@ -1,0 +1,39 @@
+<% content_for :title, "Register" %>
+
+<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
+  <h1 class="mb-5 text-2xl font-bold">Register</h1>
+
+  <%= render "shared/flash" %>
+
+  <%= form_with url: register_path, class: "grid gap-4" do |form| %>
+    <div class="grid gap-1.5">
+      <%= form.label :username, class: "text-sm font-semibold" %>
+      <%= form.text_field :username, required: true, autofocus: true, autocomplete: "username", autocapitalize: "none", maxlength: 50,
+            placeholder: "Choose a username", value: @account.myuser,
+            class: ["w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-2",
+                    @account.errors[:myuser].any? ? "border-red-500 focus:outline-red-600" : "border-gray-300 focus:outline-blue-600"] %>
+      <%= render "registrations/errors", messages: @account.errors.full_messages_for(:myuser), id: "username-error" %>
+    </div>
+
+    <div class="grid gap-1.5">
+      <%= form.label :password, class: "text-sm font-semibold" %>
+      <%= render "shared/password_field", form: form, name: :password, placeholder: "At least 6 characters",
+            autocomplete: "new-password", invalid: @account.errors[:mypassword].any? %>
+      <%= render "registrations/errors", messages: @account.errors.full_messages_for(:mypassword), id: "password-error" %>
+    </div>
+
+    <div class="grid gap-1.5">
+      <%= form.label :password_confirmation, "Confirm password", class: "text-sm font-semibold" %>
+      <%= render "shared/password_field", form: form, name: :password_confirmation, placeholder: "Type the password again",
+            autocomplete: "new-password", invalid: @account.errors[:mypassword_confirmation].any? %>
+      <%= render "registrations/errors", messages: @account.errors.full_messages_for(:mypassword_confirmation), id: "password-confirmation-error" %>
+    </div>
+
+    <%= form.submit "Register", class: "w-full cursor-pointer rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700" %>
+  <% end %>
+
+  <p class="mt-4 text-center text-sm">
+    Already have an account?
+    <%= link_to "Sign in", login_path, class: "text-blue-600 underline hover:text-blue-700" %>
+  </p>
+</div>
