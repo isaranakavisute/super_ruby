@@ -10,6 +10,9 @@ Rails.application.routes.draw do
 
   # Admin Panel: list of all user_password accounts, shown to the "admin" user after login
   get "admin" => "admin#index", as: :admin_panel
+  get "admin/products" => "admin#products", as: :admin_products
+  post "admin/users/:id/reset_password" => "admin#reset_password", as: :admin_reset_password
+  patch "admin/users/:id" => "admin#update_user", as: :admin_user
   resources :passwords, param: :token
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

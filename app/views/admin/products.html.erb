@@ -1,0 +1,34 @@
+<%= render layout: "admin/shell", locals: { active: :products } do %>
+  <section class="rounded-lg bg-white p-6 shadow-sm">
+    <div class="mb-4 flex items-baseline justify-between gap-4">
+      <h2 class="text-lg font-semibold">Products</h2>
+      <p class="text-sm text-gray-500"><%= pluralize(@products.size, "product") %></p>
+    </div>
+
+    <% if @error %>
+      <p class="rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800"><%= @error %></p>
+    <% else %>
+      <%# Wide table (one column per database column), so let it scroll sideways inside the panel %>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-black text-left text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <% @columns.each do |column| %>
+                <th class="whitespace-nowrap border border-black px-3 py-2"><%= column %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @products.each do |product| %>
+              <tr>
+                <% @columns.each do |column| %>
+                  <td class="whitespace-nowrap border border-black px-3 py-2"><%= product[column] %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+<% end %>
