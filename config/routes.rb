@@ -60,6 +60,9 @@ Rails.application.routes.draw do
 
   get "hello" => "hello#index"
 
+  # Privacy policy (public), e.g. for the Facebook app's "Privacy policy URL"
+  get "privacy" => "pages#privacy", as: :privacy
+
   # Defines the root path route ("/"): the shop, shown after logging in
   root "products#index"
 end
