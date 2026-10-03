@@ -1,13 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Loads all accounts from the /user API and shows them in the Admin Panel table,
-// with the last 3 characters of each password masked. Each row has a "Reset Password" button
-// and a pencil button that opens an edit dialog.
+// with the last 3 characters of each password masked. Each row has "Reset Password" and "Reset 2FA"
+// buttons, and a pencil button that opens an edit dialog.
 //
 //   <div data-controller="admin-users" data-admin-users-url-value="/user"
 //        data-admin-users-reset-url-value="/admin/users/__ID__/reset_password"
 //        data-admin-users-reset-password-value="123456"
-//        data-admin-users-update-url-value="/admin/users/__ID__">
+//        data-admin-users-update-url-value="/admin/users/__ID__"
+//        data-admin-users-reset-two-factor-url-value="/admin/users/__ID__/reset_two_factor">
 //     <tbody data-admin-users-target="body"></tbody>
 //     <p data-admin-users-target="status"></p>
 //     <dialog data-admin-users-target="dialog">…</dialog>
@@ -17,7 +18,7 @@ export default class extends Controller {
     "body", "status",
     "dialog", "editId", "editUsername", "usernameError", "passwordError", "dialogError", "saveButton"
   ]
-  static values = { url: String, resetUrl: String, resetPassword: String, updateUrl: String }
+  static values = { url: String, resetUrl: String, resetPassword: String, updateUrl: String, resetTwoFactorUrl: String }
 
   connect() {
     this.users = new Map()
@@ -59,6 +60,23 @@ export default class extends Controller {
       button.disabled = false
       button.textContent = "Reset Password"
       this.showStatus(`Could not reset the password for ${username}: ${error.message}`, true)
+    }
+  }
+
+  // Called by a row's "Reset 2FA" button: the user sets up their authenticator app again at their next sign-in
+  async resetTwoFactor({ params: { id, username }, currentTarget: button }) {
+    if (!confirm(`Reset two-factor authentication for ${username}? Their authenticator app code will stop working, and they will set it up again at their next sign-in.`)) return
+
+    button.disabled = true
+    try {
+      const response = await this.send(this.resetTwoFactorUrlValue.replace("__ID__", id), "POST")
+      if (!response.ok) throw new Error(`the server replied ${response.status}`)
+
+      this.showStatus(`Two-factor authentication for ${username} has been reset.`)
+    } catch (error) {
+      this.showStatus(`Could not reset two-factor authentication for ${username}: ${error.message}`, true)
+    } finally {
+      button.disabled = false
     }
   }
 
@@ -120,7 +138,7 @@ export default class extends Controller {
 
     const actions = document.createElement("div")
     actions.className = "flex items-center justify-center gap-2"
-    actions.append(this.resetButton(user), this.editButton(user))
+    actions.append(this.resetButton(user), this.resetTwoFactorButton(user), this.editButton(user))
     tr.append(this.cell(actions, "text-center"))
 
     return tr
@@ -132,6 +150,17 @@ export default class extends Controller {
     button.textContent = "Reset Password"
     button.className = "cursor-pointer rounded border border-black px-2 py-1 text-xs font-semibold hover:bg-gray-100 disabled:cursor-wait disabled:opacity-50"
     button.dataset.action = "admin-users#resetPassword"
+    button.dataset.adminUsersIdParam = user.id
+    button.dataset.adminUsersUsernameParam = user.myuser
+    return button
+  }
+
+  resetTwoFactorButton(user) {
+    const button = document.createElement("button")
+    button.type = "button"
+    button.textContent = "Reset 2FA"
+    button.className = "cursor-pointer rounded border border-black px-2 py-1 text-xs font-semibold hover:bg-gray-100 disabled:cursor-wait disabled:opacity-50"
+    button.dataset.action = "admin-users#resetTwoFactor"
     button.dataset.adminUsersIdParam = user.id
     button.dataset.adminUsersUsernameParam = user.myuser
     return button

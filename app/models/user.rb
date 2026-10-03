@@ -13,6 +13,11 @@ class User < ApplicationRecord
     username == ADMIN_USERNAME
   end
 
+  # The user_password (PostgreSQL) account this local record belongs to
+  def user_password_account
+    UserPassword.where("LOWER(myuser) = ?", username).first
+  end
+
   # Local record that login sessions belong to, for a user who signed in with their
   # user_password (PostgreSQL) account. Passwords are checked against user_password, not here,
   # so the local password is random and never used.

@@ -11,6 +11,7 @@
       <div class="flex items-center gap-4 text-sm">
         <span>👤 <%= Current.user.username %></span>
         <%= link_to "Shop", root_path, class: "hover:underline" %>
+        <%= link_to "Account", account_path, class: "hover:underline" %>
         <%= button_to "Sign out", login_path, method: :delete, form_class: "inline", class: "cursor-pointer hover:underline" %>
       </div>
     </div>
@@ -20,12 +21,18 @@
   <div class="flex flex-1 flex-row">
     <nav class="w-48 shrink-0 bg-gray-800 p-3" aria-label="Admin menu">
       <ul class="grid gap-1">
-        <% [ [ "USER", admin_panel_path, :users, "👥" ], [ "PRODUCT", admin_products_path, :products, "📦" ] ].each do |label, path, key, icon| %>
+        <% pending_requests = PasswordResetRequest.pending.count %>
+        <% [ [ "USER", admin_panel_path, :users, "👥" ], [ "PRODUCT", admin_products_path, :products, "📦" ],
+             [ "REQUESTS", admin_reset_requests_path, :reset_requests, "🔑", pending_requests ] ].each do |label, path, key, icon, badge| %>
           <li>
             <%= link_to path, aria: { current: ("page" if active == key) },
                   class: ["flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold tracking-wide",
                           active == key ? "bg-white text-gray-900" : "text-gray-300 hover:bg-gray-700 hover:text-white"] do %>
               <span aria-hidden="true"><%= icon %></span> <%= label %>
+              <%# Number of requests waiting, e.g. "2", shown only when there are some %>
+              <% if badge.to_i > 0 %>
+                <span class="ml-auto rounded-full bg-red-600 px-2 text-xs text-white" title="<%= pluralize(badge, "request") %> waiting"><%= badge %></span>
+              <% end %>
             <% end %>
           </li>
         <% end %>
@@ -33,6 +40,7 @@
     </nav>
 
     <main class="min-w-0 flex-1 border-l-4 border-sky-200 bg-sky-50 p-6">
+      <%= render "shared/flash" %>
       <%= yield %>
     </main>
   </div>

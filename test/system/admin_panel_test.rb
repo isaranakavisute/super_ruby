@@ -4,23 +4,21 @@ class AdminPanelTest < ApplicationSystemTestCase
   setup do
     create_user_password_table
     UserPassword.connection.execute("INSERT INTO user_password (myuser, mypassword) VALUES ('admin', 'admin-pass'), ('tiny', 'ab')")
+    enable_two_factor_for("admin")
   end
 
   test "admin signs in and sees every user, with the last 3 password characters masked" do
-    visit login_path
-    fill_in "Username", with: "admin"
-    fill_in "Password", with: "admin-pass"
-    click_button "Sign in"
+    sign_in_with_two_factor("admin", "admin-pass")
 
     assert_selector "h1", text: "Admin Panel"
     assert_text "4 users"
 
     rows = all("tbody tr").map { |tr| tr.all("td").map(&:text) }
     assert_equal [
-      [ "1", "bob", "secre***", "Reset Password" ],
-      [ "2", "alice", "secre***", "Reset Password" ],
-      [ "3", "admin", "admin-p***", "Reset Password" ],
-      [ "4", "tiny", "**", "Reset Password" ]
+      [ "1", "bob", "secre***", "Reset Password\nReset 2FA" ],
+      [ "2", "alice", "secre***", "Reset Password\nReset 2FA" ],
+      [ "3", "admin", "admin-p***", "Reset Password\nReset 2FA" ],
+      [ "4", "tiny", "**", "Reset Password\nReset 2FA" ]
     ], rows
     assert_no_text "secret-1"
   end
@@ -29,10 +27,7 @@ class AdminPanelTest < ApplicationSystemTestCase
     # Tests normally skip CSRF checks; turn them on to prove the button sends the page's token
     ActionController::Base.allow_forgery_protection = true
 
-    visit login_path
-    fill_in "Username", with: "admin"
-    fill_in "Password", with: "admin-pass"
-    click_button "Sign in"
+    sign_in_with_two_factor("admin", "admin-pass")
     assert_text "4 users"
 
     bob_row = find("tbody tr", text: "bob")
@@ -42,7 +37,7 @@ class AdminPanelTest < ApplicationSystemTestCase
 
     assert_text "Password for bob has been reset."
     assert_selector "tbody tr", text: "bob", count: 1
-    assert_equal [ "1", "bob", "123***", "Reset Password" ], find("tbody tr", text: "bob").all("td").map(&:text)
+    assert_equal [ "1", "bob", "123***", "Reset Password\nReset 2FA" ], find("tbody tr", text: "bob").all("td").map(&:text)
     assert_equal "123456", UserPassword.find_by!(myuser: "bob").mypassword
     assert_equal "secret-1", UserPassword.find_by!(myuser: "alice").mypassword
   ensure
@@ -50,10 +45,7 @@ class AdminPanelTest < ApplicationSystemTestCase
   end
 
   test "cancelling the confirmation changes nothing" do
-    visit login_path
-    fill_in "Username", with: "admin"
-    fill_in "Password", with: "admin-pass"
-    click_button "Sign in"
+    sign_in_with_two_factor("admin", "admin-pass")
     assert_text "4 users"
 
     dismiss_confirm { find("tbody tr", text: "bob").click_button "Reset Password" }
@@ -65,10 +57,7 @@ class AdminPanelTest < ApplicationSystemTestCase
   test "pencil opens a dialog with the user's details, and Save updates the database" do
     ActionController::Base.allow_forgery_protection = true
 
-    visit login_path
-    fill_in "Username", with: "admin"
-    fill_in "Password", with: "admin-pass"
-    click_button "Sign in"
+    sign_in_with_two_factor("admin", "admin-pass")
     assert_text "4 users"
 
     click_button "Edit bob"
@@ -89,17 +78,14 @@ class AdminPanelTest < ApplicationSystemTestCase
 
     assert_no_selector "dialog[open]"
     assert_text "bobby has been saved."
-    assert_equal [ "1", "bobby", "new-pas***", "Reset Password" ], find("tbody tr", text: "bobby").all("td").map(&:text)
+    assert_equal [ "1", "bobby", "new-pas***", "Reset Password\nReset 2FA" ], find("tbody tr", text: "bobby").all("td").map(&:text)
     assert_equal [ "bobby", "new-pass-1" ], UserPassword.find(1).slice(:myuser, :mypassword).values
   ensure
     ActionController::Base.allow_forgery_protection = false
   end
 
   test "Cancel closes the dialog without saving" do
-    visit login_path
-    fill_in "Username", with: "admin"
-    fill_in "Password", with: "admin-pass"
-    click_button "Sign in"
+    sign_in_with_two_factor("admin", "admin-pass")
     assert_text "4 users"
 
     click_button "Edit bob"
@@ -114,10 +100,7 @@ class AdminPanelTest < ApplicationSystemTestCase
 
   test "left menu switches between the USER and PRODUCT screens" do
     create_products_table
-    visit login_path
-    fill_in "Username", with: "admin"
-    fill_in "Password", with: "admin-pass"
-    click_button "Sign in"
+    sign_in_with_two_factor("admin", "admin-pass")
     assert_text "4 users"
 
     click_link "PRODUCT"

@@ -1,7 +1,9 @@
 require "test_helper"
 
-# Runs against the real PostgreSQL database configured as "postgres" in config/database.yml.
+# Uses a temporary staff table (see test/test_helpers/staff_test_helper.rb), so real data is never touched
 class StaffControllerTest < ActionDispatch::IntegrationTest
+  setup { create_staff_table }
+
   test "lists all staff records" do
     get staff_url
 

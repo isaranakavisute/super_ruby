@@ -1,0 +1,41 @@
+<% content_for :title, "Account" %>
+
+<div class="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
+  <h1 class="mb-1 text-2xl font-bold">Account</h1>
+  <p class="mb-5 text-sm text-gray-500">Signed in as <strong><%= @account.myuser %></strong></p>
+
+  <%= render "shared/flash" %>
+
+  <h2 class="mb-2 font-semibold">Sign in with Google or Facebook</h2>
+  <p class="mb-4 text-sm text-gray-500">Connect an account to sign in with it instead of your password. Your 2FA code is still needed.</p>
+
+  <ul class="grid gap-3">
+    <% SocialLogin::PROVIDERS.each_key do |provider| %>
+      <% identity = @identities[provider] %>
+      <li class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-4 py-3">
+        <div class="flex items-center gap-3">
+          <%= tag.span render("shared/social_icon", provider: provider), class: ("text-[#1877F2]" if provider == "facebook") %>
+          <div>
+            <p class="font-semibold"><%= SocialLogin.label(provider) %></p>
+            <p class="text-sm text-gray-500"><%= identity ? (identity.email.presence || identity.name.presence || "Connected") : "Not connected" %></p>
+          </div>
+        </div>
+
+        <% if identity %>
+          <%= button_to "Disconnect", disconnect_social_login_path(identity), method: :delete,
+                form: { data: { turbo_confirm: "Disconnect #{SocialLogin.label(provider)}? You won't be able to sign in with it any more." } },
+                class: "cursor-pointer rounded border border-gray-400 px-3 py-1 text-sm text-gray-700 hover:bg-gray-100" %>
+        <% elsif SocialLogin.enabled?(provider) %>
+          <%= button_to "Connect", connect_social_login_path(provider), data: { turbo: false },
+                class: "cursor-pointer rounded border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-600 hover:bg-blue-50" %>
+        <% else %>
+          <span class="text-sm text-gray-400">Not available</span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+
+  <p class="mt-6 text-center text-sm">
+    <%= link_to "← Back to the shop", root_path, class: "text-blue-600 hover:underline" %>
+  </p>
+</div>

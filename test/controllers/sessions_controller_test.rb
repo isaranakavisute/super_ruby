@@ -7,6 +7,17 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     create_products_table
   end
 
+  test "login page has the watermark and a centred Sign in heading" do
+    get login_path
+
+    assert_select "[aria-hidden=true] p", /Ruby on Rails Demo by Isara Nakavisute/
+    assert_select ".text-center > p:first-of-type", 1 do |caption|
+      assert_equal [ "Ruby on Rails Demo", "By", "Isara Nakavisute" ], caption.css("span.block").map(&:text), "three lines, above Sign in"
+    end
+    assert_select ".text-center > h1", "Sign in"
+    assert_select ".text-center > p + h1", "Sign in", "the caption is right above Sign in"
+  end
+
   test "index" do
     get login_path
     assert_response :success
@@ -15,7 +26,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "a user_password account signs in and goes to the shop" do
     assert_difference -> { User.count }, 1 do
-      post login_path, params: { username: "alice", password: "secret-1" }
+      sign_in_with_two_factor("alice", "secret-1")
     end
 
     assert_redirected_to root_path
@@ -27,15 +38,16 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "signing in again reuses the same local user" do
-    post login_path, params: { username: "alice", password: "secret-1" }
+    sign_in_with_two_factor("alice", "secret-1")
+    travel 30.seconds # a new code; each code works only once
 
     assert_no_difference -> { User.count } do
-      post login_path, params: { username: "alice", password: "secret-1" }
+      sign_in_with_two_factor("alice", "secret-1")
     end
   end
 
   test "wrong password shows a red error under the password field" do
-    post login_path, params: { username: "alice", password: "wrong" }
+    post_login("alice", "wrong")
 
     assert_response :unprocessable_content
     assert_nil cookies[:session_id]
@@ -44,20 +56,20 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "another user's password is rejected" do
-    post login_path, params: { username: "alice", password: "secret-2" }
+    post_login("alice", "secret-2")
 
     assert_response :unprocessable_content
   end
 
   test "unknown username shows the same error" do
-    post login_path, params: { username: "nobody", password: "secret-1" }
+    post_login("nobody", "secret-1")
 
     assert_response :unprocessable_content
     assert_select "#login-error", "Password is incorrect"
   end
 
   test "local users can no longer sign in with their Rails password" do
-    post login_path, params: { username: "admin", password: "admin" }
+    post_login("admin", "admin")
 
     assert_response :unprocessable_content
   end
@@ -66,7 +78,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     original = UserPassword.method(:authenticate)
     UserPassword.define_singleton_method(:authenticate) { |*| raise ActiveRecord::ConnectionNotEstablished }
     begin
-      post login_path, params: { username: "alice", password: "secret-1" }
+      post_login("alice", "secret-1")
     ensure
       UserPassword.define_singleton_method(:authenticate, original)
     end

@@ -74,3 +74,15 @@ group :test do
 end
 
 gem "tailwindcss-rails", "~> 4.6"
+
+# Two-factor authentication: 6-digit codes for authenticator apps (rotp) and the setup QR code (rqrcode)
+gem "rotp", "~> 6.3"
+gem "rqrcode", "~> 3.2"
+
+# Draws the login CAPTCHA image (pure Ruby, no ImageMagick needed)
+gem "chunky_png", "~> 1.4"
+
+# "Continue with Google / Facebook" (config/initializers/omniauth.rb)
+gem "omniauth", "~> 2.1"
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-facebook", "~> 11.0"

@@ -8,7 +8,7 @@ class AdminControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "admin is sent to the Admin Panel after signing in" do
-    post login_path, params: { username: "admin", password: "admin-pass" }
+    sign_in_with_two_factor("admin", "admin-pass")
 
     assert_redirected_to admin_panel_path
     follow_redirect!
@@ -17,13 +17,13 @@ class AdminControllerTest < ActionDispatch::IntegrationTest
 
   test "admin goes to the Admin Panel even if another page was asked for first" do
     get root_path
-    post login_path, params: { username: "admin", password: "admin-pass" }
+    sign_in_with_two_factor("admin", "admin-pass")
 
     assert_redirected_to admin_panel_path
   end
 
   test "other users still go to the shop" do
-    post login_path, params: { username: "alice", password: "secret-1" }
+    sign_in_with_two_factor("alice", "secret-1")
 
     assert_redirected_to root_path
   end
@@ -74,7 +74,7 @@ class AdminControllerTest < ActionDispatch::IntegrationTest
     post admin_reset_password_path(UserPassword.find_by!(myuser: "bob")), as: :json
     sign_out
 
-    post login_path, params: { username: "bob", password: "123456" }
+    sign_in_with_two_factor("bob", "123456")
 
     assert_redirected_to root_path
   end
@@ -184,5 +184,65 @@ class AdminControllerTest < ActionDispatch::IntegrationTest
     get admin_products_path
 
     assert_redirected_to root_path
+  end
+
+  test "REQUESTS screen lists waiting requests, and the menu shows how many" do
+    PasswordResetRequest.submit("bob", ip_address: "10.0.0.1")
+    PasswordResetRequest.create!(username: "alice", resolved_at: 1.day.ago)
+    sign_in_as users(:admin)
+
+    get admin_reset_requests_path
+
+    assert_response :success
+    assert_select "nav a[aria-current=page]", text: /REQUESTS/
+    assert_select "nav a[href=?] span.bg-red-600", admin_reset_requests_path, "1"
+    assert_select "tbody tr", 1
+    assert_select "tbody td", "bob"
+    assert_select "tbody td", "10.0.0.1"
+  end
+
+  test "resolving a request resets that user's password to 123456" do
+    reset_request = PasswordResetRequest.submit("bob", ip_address: nil)
+    sign_in_as users(:admin)
+
+    post admin_resolve_reset_request_path(reset_request)
+
+    assert_redirected_to admin_reset_requests_path
+    assert_equal "Password for bob has been reset to 123456. Please let them know.", flash[:notice]
+    assert_equal "123456", UserPassword.find_by!(myuser: "bob").mypassword
+    assert_equal "secret-1", UserPassword.find_by!(myuser: "alice").mypassword
+    assert reset_request.reload.resolved_at
+  end
+
+  test "dismissing a request closes it without changing the password" do
+    reset_request = PasswordResetRequest.submit("bob", ip_address: nil)
+    sign_in_as users(:admin)
+
+    delete admin_dismiss_reset_request_path(reset_request)
+
+    assert_redirected_to admin_reset_requests_path
+    assert reset_request.reload.resolved_at
+    assert_equal "secret-2", UserPassword.find_by!(myuser: "bob").mypassword
+  end
+
+  test "Reset Password on the USER screen also closes that user's request" do
+    reset_request = PasswordResetRequest.submit("bob", ip_address: nil)
+    sign_in_as users(:admin)
+
+    post admin_reset_password_path(UserPassword.find_by!(myuser: "bob")), as: :json
+
+    assert reset_request.reload.resolved_at
+  end
+
+  test "other users cannot see or resolve requests" do
+    reset_request = PasswordResetRequest.submit("bob", ip_address: nil)
+    sign_in_as users(:one)
+
+    get admin_reset_requests_path
+    assert_redirected_to root_path
+
+    post admin_resolve_reset_request_path(reset_request)
+    assert_equal "secret-2", UserPassword.find_by!(myuser: "bob").mypassword
+    assert_nil reset_request.reload.resolved_at
   end
 end

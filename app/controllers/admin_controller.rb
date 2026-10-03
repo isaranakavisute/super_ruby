@@ -32,6 +32,16 @@ class AdminController < ApplicationController
     # Only this column changes; skip the registration rules so accounts created before them
     # (e.g. with a username those rules would not allow) can still be reset.
     account.update_columns(mypassword: RESET_PASSWORD)
+    PasswordResetRequest.resolve_for(account.myuser)
+
+    render json: account.slice(:id, :myuser, :mypassword)
+  end
+
+  # POST /admin/users/:id/reset_two_factor: for a user who lost their phone. Their authenticator
+  # app entry stops working, and they set up 2FA again at their next sign-in.
+  def reset_two_factor
+    account = UserPassword.find(params[:id])
+    account.reset_two_factor!
 
     render json: account.slice(:id, :myuser, :mypassword)
   end
@@ -46,10 +56,38 @@ class AdminController < ApplicationController
     end
 
     if account.update(params.permit(:myuser, :mypassword))
+      PasswordResetRequest.resolve_for(account.myuser_before_last_save) if account.saved_change_to_mypassword?
       render json: account.slice(:id, :myuser, :mypassword)
     else
       render json: { errors: account.errors.to_hash(true) }, status: :unprocessable_content
     end
+  end
+
+  # REQUESTS screen: "Forgot password" requests waiting for the admin, oldest first
+  def reset_requests
+    @requests = PasswordResetRequest.pending.order(:created_at)
+  end
+
+  # POST /admin/reset_requests/:id/resolve: resets that user's password to RESET_PASSWORD
+  def resolve_reset_request
+    reset_request = PasswordResetRequest.pending.find_by(id: params[:id])
+    return redirect_to admin_reset_requests_path, alert: "That request has already been handled." unless reset_request
+
+    if account = UserPassword.find_by(myuser: reset_request.username)
+      account.update_columns(mypassword: RESET_PASSWORD)
+      PasswordResetRequest.resolve_for(account.myuser)
+      redirect_to admin_reset_requests_path, notice: "Password for #{account.myuser} has been reset to #{RESET_PASSWORD}. Please let them know."
+    else
+      redirect_to admin_reset_requests_path, alert: "There is no account named #{reset_request.username} any more. You can dismiss this request."
+    end
+  rescue ActiveRecord::ConnectionNotEstablished => e
+    redirect_to admin_reset_requests_path, alert: "Could not connect to PostgreSQL: #{e.message}"
+  end
+
+  # DELETE /admin/reset_requests/:id: closes the request without changing the password
+  def dismiss_reset_request
+    PasswordResetRequest.pending.find_by(id: params[:id])&.resolve!
+    redirect_to admin_reset_requests_path, notice: "Request dismissed.", status: :see_other
   end
 
   private

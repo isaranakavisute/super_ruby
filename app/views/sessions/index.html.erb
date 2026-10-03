@@ -1,30 +1,107 @@
 <% content_for :title, "Sign in" %>
+<% content_for :full_width, true %>
 
-<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
-  <h1 class="mb-5 text-2xl font-bold">Sign in</h1>
-
-  <%= render "shared/flash" %>
-
-  <%= form_with url: login_path, class: "grid gap-4" do |form| %>
-    <div class="grid gap-1.5">
-      <%= form.label :username, class: "text-sm font-semibold" %>
-      <%= form.text_field :username, required: true, autofocus: params[:username].blank?, autocomplete: "username", autocapitalize: "none", placeholder: "Enter your username", value: params[:username],
-            class: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-2 focus:outline-blue-600" %>
-    </div>
-
-    <div class="grid gap-1.5">
-      <%= form.label :password, class: "text-sm font-semibold" %>
-      <%= render "shared/password_field", form: form, name: :password, placeholder: "Enter your password",
-            autocomplete: "current-password", invalid: @error.present?, autofocus: params[:username].present? %>
-      <%= tag.p(@error, class: "text-sm text-red-600", id: "login-error") if @error %>
-    </div>
-
-    <%= form.submit "Sign in", class: "w-full cursor-pointer rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700" %>
-  <% end %>
-
-  <div class="mt-4 grid gap-2 text-center">
-    <p class="text-sm text-gray-500">Don't have an account?</p>
-    <%= link_to "Register", register_path,
-          class: "w-full rounded-lg border border-blue-600 py-2.5 font-semibold text-blue-600 hover:bg-blue-50" %>
+<%# Black background with a faint white watermark spread evenly over it, and the sign-in card in the middle %>
+<div class="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-4 py-10">
+  <%# Two very faint, slow-moving glows, so the background isn't completely flat %>
+  <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+    <div class="absolute -top-32 -left-32 size-[30rem] rounded-full bg-sky-500/10 blur-3xl motion-safe:animate-float"></div>
+    <div class="absolute -right-32 -bottom-32 size-[30rem] rounded-full bg-red-600/10 blur-3xl motion-safe:animate-float [animation-delay:-14s]"></div>
   </div>
+
+  <%# Watermark: the caption in an even grid across the whole background, each one tilted %>
+  <div class="pointer-events-none absolute inset-0 -z-10 grid select-none auto-rows-[9rem] grid-cols-2 place-items-center sm:grid-cols-3 lg:grid-cols-4" aria-hidden="true">
+    <% 64.times do %>
+      <p class="-rotate-[20deg] text-sm font-medium tracking-wide whitespace-nowrap text-white/20">Ruby on Rails Demo by Isara Nakavisute</p>
+    <% end %>
+  </div>
+
+  <%# Half the screen width on large screens (full width on phones and narrow windows) %>
+  <div class="w-full rounded-2xl bg-white p-8 shadow-2xl shadow-black ring-1 ring-white/10 sm:p-10 lg:w-1/2 motion-safe:animate-rise-in">
+    <div class="mb-8 text-center">
+      <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-red-700 text-3xl shadow-md shadow-red-900/20" aria-hidden="true">💎</div>
+      <p class="mb-3 text-sm leading-snug font-semibold tracking-wider text-red-700 uppercase">
+        <span class="block">Ruby on Rails Demo</span>
+        <span class="block">By</span>
+        <span class="block">Isara Nakavisute</span>
+      </p>
+      <h1 class="text-3xl font-semibold text-slate-900">Sign in</h1>
+      <p class="mt-1 text-slate-500">Welcome back. Please sign in to continue.</p>
+    </div>
+
+    <%= render "shared/flash" %>
+
+    <%= form_with url: login_path, class: "grid gap-5" do |form| %>
+      <%# Username and password side by side (stacked on small screens) %>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div class="grid content-start gap-1.5">
+          <%= form.label :username, class: "text-sm font-semibold" %>
+          <%= form.text_field :username, required: true, autofocus: params[:username].blank?, autocomplete: "username", autocapitalize: "none", placeholder: "Enter your username", value: params[:username],
+                class: "w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-2 focus:outline-red-700" %>
+        </div>
+
+        <div class="grid content-start gap-1.5">
+          <%= form.label :password, class: "text-sm font-semibold" %>
+          <%= render "shared/password_field", form: form, name: :password, placeholder: "Enter your password",
+                autocomplete: "current-password", invalid: @error.present?, autofocus: params[:username].present? %>
+          <%= tag.p(@error, class: "text-sm text-red-600", id: "login-error") if @error %>
+          <%= link_to "Forgot password?", forgot_password_path, class: "justify-self-end text-sm text-red-700 hover:underline" %>
+        </div>
+      </div>
+
+      <%# CAPTCHA: image, New image button and answer in one row. Each image load creates a new
+          single-use challenge (SessionsController#captcha) %>
+      <div class="grid gap-1.5" data-controller="captcha" data-captcha-url-value="<%= login_captcha_path %>">
+        <%= form.label :captcha, "Type the characters in the image", class: "text-sm font-semibold" %>
+        <div class="flex flex-wrap items-center gap-3">
+          <%= image_tag login_captcha_path(v: SecureRandom.hex(4)), alt: "CAPTCHA image: type the 5 characters shown",
+                width: CaptchaImage::WIDTH, height: CaptchaImage::HEIGHT, data: { captcha_target: "image" },
+                class: "h-[70px] w-[220px] rounded-lg border border-gray-300" %>
+          <button type="button" data-action="captcha#refresh" title="New image" aria-label="New image"
+                  class="size-10 shrink-0 cursor-pointer rounded-lg border border-gray-300 text-lg text-gray-700 hover:bg-gray-50">↻</button>
+          <%= form.text_field :captcha, required: true, autocomplete: "off", autocapitalize: "characters", spellcheck: false,
+                maxlength: LoginCaptcha::LENGTH, placeholder: "5 characters", value: nil,
+                data: { captcha_target: "input" },
+                aria: { invalid: @captcha_error.present?, describedby: ("captcha-error" if @captcha_error) },
+                class: ["min-w-40 flex-1 rounded-lg border px-3 py-2 text-lg uppercase tracking-[0.3em] placeholder:text-base placeholder:normal-case placeholder:tracking-normal focus:border-transparent focus:outline-2 focus:outline-red-700",
+                        @captcha_error ? "border-red-500" : "border-gray-300"] %>
+        </div>
+        <%= tag.p(@captcha_error, class: "text-sm text-red-600", id: "captcha-error") if @captcha_error %>
+      </div>
+
+      <%= form.submit "Sign in", class: "w-full cursor-pointer rounded-lg bg-red-700 py-3 text-lg font-semibold text-white shadow-sm transition hover:bg-red-800" %>
+    <% end %>
+
+    <%# Google / Facebook side by side: separate forms, so no username, password or CAPTCHA is needed
+        (SocialLoginsController#start). Not via Turbo, because the browser leaves the site for Google / Facebook. %>
+    <% if SocialLogin.enabled_providers.any? %>
+      <div class="mt-6 grid gap-4">
+        <div class="flex items-center gap-3 text-sm text-gray-400" aria-hidden="true">
+          <span class="h-px flex-1 bg-gray-200"></span> or continue with <span class="h-px flex-1 bg-gray-200"></span>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <% SocialLogin.enabled_providers.each do |provider| %>
+            <%= button_to social_login_path(provider), form: { data: { turbo: false } },
+                  class: ["flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg py-2.5 font-semibold",
+                          provider == "facebook" ? "border border-transparent bg-[#1877F2] text-white hover:bg-[#166FE5]" : "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50"] do %>
+              <%= render "shared/social_icon", provider: provider %>
+              Continue with <%= SocialLogin.label(provider) %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3 border-t border-gray-100 pt-6">
+      <p class="text-sm text-gray-500">Don't have an account?</p>
+      <%= link_to "Register", register_path,
+            class: "rounded-lg border border-slate-300 px-6 py-2 font-semibold text-slate-800 transition hover:bg-slate-50" %>
+    </div>
+  </div>
+
+  <p class="mt-6 text-center text-sm leading-snug text-white/70">
+    <span class="block">Ruby on Rails Demo</span>
+    <span class="block">By</span>
+    <span class="block">Isara Nakavisute</span>
+  </p>
 </div>

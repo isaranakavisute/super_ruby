@@ -1,0 +1,7 @@
+<%# 6-digit code input, shared by the setup and sign-in pages. Locals: form, error, placeholder %>
+<%= form.text_field :code, required: true, autofocus: true, autocomplete: "one-time-code", inputmode: "numeric",
+      autocapitalize: "none", spellcheck: false, placeholder: placeholder, value: nil,
+      aria: { invalid: error.present?, describedby: ("code-error" if error) },
+      class: ["w-full rounded-lg border px-3 py-2 text-center text-lg tracking-widest focus:border-transparent focus:outline-2 focus:outline-blue-600",
+              error ? "border-red-500" : "border-gray-300"] %>
+<%= tag.p(error, class: "text-sm text-red-600", id: "code-error") if error %>

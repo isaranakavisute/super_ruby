@@ -4,6 +4,7 @@
 <header class="bg-gradient-to-b from-[#f53d2d] to-[#f63] text-white">
   <div class="mx-auto flex max-w-6xl items-center justify-end gap-4 px-4 py-1.5 text-xs">
     <span>👤 <%= Current.user.username || Current.user.email_address %></span>
+    <%= link_to "Account", account_path, class: "hover:underline" %>
     <%= button_to "Sign out", login_path, method: :delete, form_class: "inline", class: "cursor-pointer hover:underline" %>
   </div>
 

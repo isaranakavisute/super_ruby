@@ -4,6 +4,10 @@ require "rails/test_help"
 require_relative "test_helpers/session_test_helper"
 require_relative "test_helpers/user_password_test_helper"
 require_relative "test_helpers/product_test_helper"
+require_relative "test_helpers/staff_test_helper"
+require_relative "test_helpers/two_factor_test_helper"
+require_relative "test_helpers/login_captcha_test_helper"
+require_relative "test_helpers/social_login_test_helper"
 
 module ActiveSupport
   class TestCase

@@ -21,7 +21,7 @@ class HelloControllerTest < ActionDispatch::IntegrationTest
     create_user_password_table
 
     get hello_path
-    post login_path, params: { username: "bob", password: "secret-2" }
+    sign_in_with_two_factor("bob", "secret-2")
 
     assert_redirected_to hello_url
     follow_redirect!

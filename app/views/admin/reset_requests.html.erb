@@ -1,0 +1,44 @@
+<%= render layout: "admin/shell", locals: { active: :reset_requests } do %>
+  <section class="rounded-lg bg-white p-6 shadow-sm">
+    <div class="mb-4 flex items-baseline justify-between gap-4">
+      <h2 class="text-lg font-semibold">Forgot password requests</h2>
+      <p class="text-sm text-gray-500"><%= pluralize(@requests.size, "request") %> waiting</p>
+    </div>
+
+    <% if @requests.empty? %>
+      <p class="text-sm text-gray-500">No requests are waiting.</p>
+    <% else %>
+      <table class="w-full border-collapse border border-black text-left text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border border-black px-3 py-2">Username</th>
+            <th class="border border-black px-3 py-2">Requested</th>
+            <th class="border border-black px-3 py-2">IP address</th>
+            <th class="border border-black px-3 py-2 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @requests.each do |reset_request| %>
+            <tr>
+              <td class="border border-black px-3 py-2"><%= reset_request.username %></td>
+              <td class="border border-black px-3 py-2">
+                <%= l reset_request.created_at, format: :short %>
+                <span class="text-gray-500">(<%= time_ago_in_words(reset_request.created_at) %> ago)</span>
+              </td>
+              <td class="border border-black px-3 py-2"><%= reset_request.ip_address %></td>
+              <td class="border border-black px-3 py-2 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <%= button_to "Reset to #{AdminController::RESET_PASSWORD}", admin_resolve_reset_request_path(reset_request),
+                        form: { data: { turbo_confirm: "Reset the password for #{reset_request.username} to #{AdminController::RESET_PASSWORD}?" } },
+                        class: "cursor-pointer rounded border border-black px-2 py-1 text-xs font-semibold hover:bg-gray-100" %>
+                  <%= button_to "Dismiss", admin_dismiss_reset_request_path(reset_request), method: :delete,
+                        class: "cursor-pointer rounded border border-gray-400 px-2 py-1 text-xs text-gray-600 hover:bg-gray-100" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </section>
+<% end %>

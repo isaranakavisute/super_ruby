@@ -36,7 +36,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   test "the new account can sign in" do
     post register_path, params: { username: "newbie", password: "secret-3", password_confirmation: "secret-3" }
 
-    post login_path, params: { username: "newbie", password: "secret-3" }
+    sign_in_with_two_factor("newbie", "secret-3")
 
     assert_redirected_to root_path
     assert cookies[:session_id]

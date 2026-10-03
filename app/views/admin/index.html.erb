@@ -3,7 +3,8 @@
            data-controller="admin-users" data-admin-users-url-value="<%= user_path %>"
            data-admin-users-reset-url-value="<%= admin_reset_password_path(id: "__ID__") %>"
            data-admin-users-reset-password-value="<%= AdminController::RESET_PASSWORD %>"
-           data-admin-users-update-url-value="<%= admin_user_path(id: "__ID__") %>">
+           data-admin-users-update-url-value="<%= admin_user_path(id: "__ID__") %>"
+           data-admin-users-reset-two-factor-url-value="<%= admin_reset_two_factor_path(id: "__ID__") %>">
     <div class="mb-4 flex items-baseline justify-between gap-4">
       <h2 class="text-lg font-semibold">Users</h2>
       <p class="text-sm text-gray-500" data-admin-users-target="status" aria-live="polite"></p>

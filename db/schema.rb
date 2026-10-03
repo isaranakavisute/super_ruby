@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_24_214028) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_072122) do
+  create_table "password_reset_requests", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "resolved_at"
+    t.datetime "updated_at", null: false
+    t.string "username", null: false
+    t.index ["username", "resolved_at"], name: "index_password_reset_requests_on_username_and_resolved_at"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"

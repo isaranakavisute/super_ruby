@@ -1,0 +1,28 @@
+<% content_for :title, "Two-factor authentication" %>
+
+<div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
+  <h1 class="mb-2 text-2xl font-bold">Enter your code</h1>
+  <p class="mb-5 text-sm text-gray-500">
+    Open <strong>Microsoft Authenticator</strong> and enter the 6-digit code for <strong><%= UserPassword::OTP_ISSUER %> (<%= @account.myuser %>)</strong>.
+  </p>
+
+  <%= render "shared/flash" %>
+
+  <%= form_with url: two_factor_path, class: "grid gap-4" do |form| %>
+    <div class="grid gap-1.5">
+      <%= form.label :code, "Code", class: "text-sm font-semibold" %>
+      <%= render "two_factor/code_field", form: form, error: @error, placeholder: "123456" %>
+    </div>
+
+    <%= form.submit "Verify", class: "w-full cursor-pointer rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700" %>
+  <% end %>
+
+  <details class="mt-4 text-sm text-gray-600">
+    <summary class="cursor-pointer text-blue-600 hover:underline">Lost your phone?</summary>
+    <p class="mt-2">Enter one of your <strong>recovery codes</strong> (e.g. <span class="font-mono">abcde-12345</span>) in the Code box instead. If you have none left, ask the admin to reset your two-factor authentication.</p>
+  </details>
+
+  <p class="mt-4 text-center text-sm">
+    <%= link_to "← Back to sign in", login_path, class: "text-blue-600 hover:underline" %>
+  </p>
+</div>

@@ -1,0 +1,18 @@
+<% content_for :title, "Your recovery codes" %>
+
+<div class="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
+  <h1 class="mb-2 text-2xl font-bold">✅ Two-factor authentication is on</h1>
+  <p class="mb-5 text-sm text-gray-600">
+    Save these <strong>recovery codes</strong> somewhere safe, such as a password manager or on paper.
+    If you lose your phone, each code lets you sign in once. <strong>They won't be shown again.</strong>
+  </p>
+
+  <ul class="mb-5 grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-4 text-center font-mono" aria-label="Recovery codes">
+    <% @codes.each do |code| %>
+      <li><%= code %></li>
+    <% end %>
+  </ul>
+
+  <%= link_to "I've saved my codes, continue", @continue_path,
+        class: "block w-full rounded-lg bg-blue-600 py-2.5 text-center font-semibold text-white hover:bg-blue-700" %>
+</div>

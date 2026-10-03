@@ -38,6 +38,14 @@ module Authentication
       session.delete(:return_to_after_authenticating) || root_url
     end
 
+    # First step passed (password, or Google / Facebook) for a user_password account: the session only
+    # starts after a code from their authenticator app (TwoFactorController). Everyone must use 2FA,
+    # so first-timers set it up now.
+    def start_two_factor_for(account)
+      session[:pending_two_factor] = { "account_id" => account.id, "expires_at" => 10.minutes.from_now.to_i }
+      redirect_to account.two_factor_enabled? ? two_factor_path : two_factor_setup_path
+    end
+
     def start_new_session_for(user)
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
