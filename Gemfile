@@ -83,6 +83,6 @@ gem "rqrcode", "~> 3.2"
 gem "chunky_png", "~> 1.4"
 
 # "Continue with Google / Facebook" (config/initializers/omniauth.rb)
-gem "omniauth", "~> 2.1"
+gem "omniauth", "~> 2.3"
 gem "omniauth-google-oauth2", "~> 1.2"
 gem "omniauth-facebook", "~> 11.0"
